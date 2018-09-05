@@ -19,13 +19,15 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 {
 	if (code)
 		stop();
-	std::cout << "Receive: " << std::string(m_input, bytes) << std::endl;
 	m_inputBytes = bytes;
-	parseHeader();
-	char tem[100];
-	WS::getResponseKey(m_header["Sec-WebSocket-Key"].c_str(), tem);
-	m_header["Sec-WebSocket-Accept"] = tem;
-	buildResponse();
+	if (m_state == shakehand)
+	{
+		std::cout << "Receive: " << std::string(m_input, bytes) << std::endl;
+		parseHeader();
+		buildResponse();
+	}
+	else if (m_state == connected)
+		WebSocket::getServer()->writeToAll(WS::getReceiveData(m_input, bytes), this);
 	doWrite();
 	doRead();
 }
@@ -35,6 +37,7 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 	if (code)
 		stop();
 	WebSocket::getServer()->connectSuccessful(this);
+	m_state = connected;
 	std::cout << "Response: " << std::string(m_output, bytes) << std::endl;
 }
 
@@ -92,7 +95,9 @@ void WebSocketInfo::buildResponse()
 
 void WebSocketInfo::setOutputMsg(std::string msg)
 {
-	strcpy_s(m_output, msg.size(), msg.c_str());
+	strcpy_s(m_output, MAX_SIZE, msg.c_str());
+	WS::generateSendData(m_output);
+	int none;
 }
 
 void WebSocketInfo::parseHeader()
@@ -112,4 +117,8 @@ void WebSocketInfo::parseHeader()
 		if (index != std::string::npos)
 			m_header[header.substr(0, index)] = header.substr(index + 2);
 	}
+
+	char tem[100];
+	WS::getResponseKey(m_header["Sec-WebSocket-Key"].c_str(), tem);
+	m_header["Sec-WebSocket-Accept"] = tem;
 }

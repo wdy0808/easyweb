@@ -2,28 +2,43 @@
 #include "websocket.h"
 #include "socketinfo.h"
 
+WebSocket* WebSocket::m_server = nullptr;
+
 WebSocket::WebSocket()
 {
-	
-}
 
+}
 
 WebSocket::~WebSocket()
 {
+
 }
 
-void WebSocket::running(ioService & service, EndPoint & endpoint)
+void WebSocket::connectSuccessful(WebSocketInfo* socket)
 {
-	while (true)
+	m_connectedSockets.push_back(socket);
+}
+
+void WebSocket::writeToAll(std::string msg)
+{
+	auto i = m_connectedSockets.begin();
+	while (i != m_connectedSockets.end())
 	{
-		WebSocketInfo::web_ptr ptr = WebSocketInfo::getWebPtr(service, this);
-		Acceptror accept(service, endpoint);
-		accept.accept(ptr->getSocket());
-		ptr->doRead(service);
+		if ((*i)->getState() == connected)
+		{
+			(*i)->setOutputMsg(msg);
+			(*i)->doWrite();
+			++i;
+		}
+		else if ((*i)->getState() == stop)
+			i = m_connectedSockets.erase(i);
 	}
 }
 
-void WebSocket::test(WebSocketInfo * onesocket)
+WebSocket* WebSocket::getServer()
 {
-	//onesocket->doRead();
+	if (m_server == nullptr)
+		m_server = new WebSocket();
+
+	return m_server;
 }

@@ -73,5 +73,5 @@ void WS::generateSendData(char* output)
 	}
 	output[dataStart] = '\0';
 	char t = output[1];
-	strcat_s(output, dataLen + 10, data.c_str());
+	strcat_s(output, dataLen + 3, data.c_str());
 }

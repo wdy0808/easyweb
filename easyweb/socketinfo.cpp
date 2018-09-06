@@ -27,7 +27,7 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 		buildResponse();
 	}
 	else if (m_state == connected)
-		WebSocket::getServer()->writeToAll(WS::getReceiveData(m_input, bytes), this);
+		WebSocket::getServer()->writeToAll(WS::getReceiveData(m_input, bytes));
 	doWrite();
 	doRead();
 }
@@ -36,8 +36,11 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 {
 	if (code)
 		stop();
-	WebSocket::getServer()->connectSuccessful(this);
-	m_state = connected;
+	if (m_state == shakehand)
+	{
+		WebSocket::getServer()->connectSuccessful(this);
+		m_state = connected;
+	}
 	std::cout << "Response: " << std::string(m_output, bytes) << std::endl;
 }
 
@@ -97,7 +100,7 @@ void WebSocketInfo::setOutputMsg(std::string msg)
 {
 	strcpy_s(m_output, MAX_SIZE, msg.c_str());
 	WS::generateSendData(m_output);
-	int none;
+	m_outputBytes = strlen(m_output);
 }
 
 void WebSocketInfo::parseHeader()

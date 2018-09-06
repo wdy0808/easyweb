@@ -7,7 +7,7 @@ public:
 	~WebSocket();
 
 	void connectSuccessful(WebSocketInfo* socket);
-	void writeToAll(std::string msg, WebSocketInfo* self);
+	void writeToAll(std::string msg);
 
 	static WebSocket* getServer();
 

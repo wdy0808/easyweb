@@ -38,23 +38,23 @@ std::string WS::getReceiveData(std::string input)
 	else if (payloadLen == 127)
 		maskStart = 10;
 
-	std::string mask = input.substr(maskStart, 4);
+	std::string mask = input.substr(maskStart, 4); 
 	input = input.substr(maskStart + 4);
 	for (size_t i = 0; i < input.size(); ++i)
-		input[i] = input[i] ^ mask[i % 4];
+		input[i] = input[i] ^ mask[i % 4];//std::cout << input.size() <<" " << input[input.size() - 1] << std::endl;
 	return input;
 }
 
-void WS::generateSendData(char* output)
+std::string WS::generateSendData(std::string data)
 {
-	std::string data(output);
-	size_t dataLen = data.size(), dataStart = 2;
+	std::string output(2, ' ');
+	size_t dataLen = data.size();
 	output[0] = output[0] & 0 | 0x81;
 	if (dataLen < 126)
 		output[1] = output[1] & 0 | dataLen;
 	else if (dataLen <= 0xFFFF)
 	{
-		dataStart = 4;
+		output += std::string(2, ' ');
 		output[1] = output[1] & 0 | 126;
 		char* len = (char*)&dataLen;
 		output[2] = len[1];
@@ -62,12 +62,11 @@ void WS::generateSendData(char* output)
 	}
 	else
 	{
-		dataStart = 10;
+		output += std::string(8, ' ');
 		output[1] = output[1] & 0 | 127;
 		char* len = (char*)&dataLen;
 		for (int i = 0; i < 8; i++)
 			output[i + 2] = len[7 - i];
 	}
-	output[dataStart] = '\0';
-	strcat_s(output, 8096 - dataStart, data.c_str());
+	return output + data;
 }

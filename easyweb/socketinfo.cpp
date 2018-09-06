@@ -17,6 +17,7 @@ WebSocketInfo::~WebSocketInfo()
 
 void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 {
+	std::cout << bytes << std::endl;
 	if (code)
 		stop();
 	m_inputBytes = bytes;
@@ -97,8 +98,8 @@ void WebSocketInfo::buildResponse()
 
 void WebSocketInfo::setOutputMsg(std::string msg)
 {
-	strcpy_s(m_output, MAX_SIZE, msg.c_str());
-	WS::generateSendData(m_output);
+	m_output[0] = '\0';
+	strcat_s(m_output, WS::generateSendData(msg).c_str());
 	m_outputBytes = strlen(m_output);
 }
 

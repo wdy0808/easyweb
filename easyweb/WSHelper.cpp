@@ -30,22 +30,19 @@ void WS::getResponseKey(const char* key, char* responseKey)
 	BIO_free_all(bio);
 }
 
-std::string WS::getReceiveData(char* input, size_t bytes)
+std::string WS::getReceiveData(std::string input)
 {
 	int payloadLen = input[1] & 127, maskStart = 2;
-	char mask[5];
 	if (payloadLen == 126)
 		maskStart = 4;
 	else if (payloadLen == 127)
 		maskStart = 10;
 
-	strncpy_s(mask, 5, input + maskStart, 4);
-	rsize_t dataLen = bytes - maskStart - 4;
-	input += maskStart + 4;
-	for (size_t i = 0; i < dataLen; ++i)
+	std::string mask = input.substr(maskStart, 4);
+	input = input.substr(maskStart + 4);
+	for (size_t i = 0; i < input.size(); ++i)
 		input[i] = input[i] ^ mask[i % 4];
-
-	return std::string(input, dataLen);
+	return input;
 }
 
 void WS::generateSendData(char* output)
@@ -72,6 +69,5 @@ void WS::generateSendData(char* output)
 			output[i + 2] = len[7 - i];
 	}
 	output[dataStart] = '\0';
-	char t = output[1];
-	strcat_s(output, dataLen + 3, data.c_str());
+	strcat_s(output, 8096 - dataStart, data.c_str());
 }

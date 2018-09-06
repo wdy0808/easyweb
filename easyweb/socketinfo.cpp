@@ -22,13 +22,12 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 	m_inputBytes = bytes;
 	if (m_state == shakehand)
 	{
-		std::cout << "Receive: " << std::string(m_input, bytes) << std::endl;
 		parseHeader();
 		buildResponse();
+		doWrite();
 	}
 	else if (m_state == connected)
-		WebSocket::getServer()->writeToAll(WS::getReceiveData(m_input, bytes));
-	doWrite();
+		WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)));
 	doRead();
 }
 
@@ -41,7 +40,7 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 		WebSocket::getServer()->connectSuccessful(this);
 		m_state = connected;
 	}
-	std::cout << "Response: " << std::string(m_output, bytes) << std::endl;
+	//std::cout << "Response: " << std::string(m_output, bytes) << std::endl;
 }
 
 WebSocketInfo::web_ptr WebSocketInfo::getWebPtr(ioService& service)

@@ -3,6 +3,6 @@
 namespace WS
 {
 	void getResponseKey(const char* key, char* responseKey);
-	std::string getReceiveData(char* input, size_t bytes);
+	std::string getReceiveData(std::string input);
 	void generateSendData(char* output);
 }

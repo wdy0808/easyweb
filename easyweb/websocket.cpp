@@ -22,7 +22,7 @@ void WebSocket::connectSuccessful(WebSocketInfo* socket)
 void WebSocket::writeToAll(std::string msg)
 {
 	auto i = m_connectedSockets.begin();
-	while (i != m_connectedSockets.end())
+	while (i != m_connectedSockets.end()) 
 	{
 		if ((*i)->getState() == connected)
 		{

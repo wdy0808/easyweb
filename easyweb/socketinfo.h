@@ -8,7 +8,7 @@
 #define BIND1(func, x) bind(&WebSocketInfo::func, shared_from_this(), x)
 #define BIND2(func, x, y) bind(&WebSocketInfo::func, shared_from_this(), x, y)
 
-enum WebSocketState{shakehand, connected, stop};
+enum WebSocketState{shakehand, connected, close, stop};
 class WebSocket;
 class WebSocketInfo : public boost::enable_shared_from_this<WebSocketInfo>, boost::noncopyable
 {
@@ -23,7 +23,6 @@ public:
 	void doWrite();
 	void doRead();
 	Socket& getSocket();
-	void stop();
 	WebSocketState getState();
 	void setOutputMsg(std::string msg);
 
@@ -35,6 +34,11 @@ private:
 
 	void buildResponse();
 	void parseHeader();
+
+	void stop();
+	void close();
+
+	bool normalState();
 
 	Socket m_socket;
 	WebSocket* m_web;

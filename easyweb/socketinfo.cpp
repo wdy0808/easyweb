@@ -8,7 +8,6 @@
 WebSocketInfo::WebSocketInfo(ioService& service)
 	: m_socket(service), m_state(shakehand)
 {
-	CoCreateGuid(&m_guid);
 }
 
 WebSocketInfo::~WebSocketInfo()
@@ -17,8 +16,7 @@ WebSocketInfo::~WebSocketInfo()
 
 void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 {
-	std::cout << bytes << std::endl;
-	if (code)
+	if (code || bytes == 0)
 		stop();
 	m_inputBytes = bytes;
 	if (m_state == shakehand)
@@ -28,7 +26,19 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 		doWrite();
 	}
 	else if (m_state == connected)
-		WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)), this);
+	{
+		char opcode = m_input[0] & 0x0F;
+		switch (opcode) {
+		case 0x01:
+			WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)), shared_from_this());
+			break;
+		case 0x08:
+			close();
+			break;
+		default:
+			stop();
+		}
+	}
 	doRead();
 }
 
@@ -38,10 +48,9 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 		stop();
 	if (m_state == shakehand)
 	{
-		WebSocket::getServer()->connectSuccessful(this);
+		WebSocket::getServer()->connectSuccessful(shared_from_this());
 		m_state = connected;
 	}
-	//std::cout << "Response: " << std::string(m_output, bytes) << std::endl;
 }
 
 WebSocketInfo::web_ptr WebSocketInfo::getWebPtr(ioService& service)
@@ -52,13 +61,13 @@ WebSocketInfo::web_ptr WebSocketInfo::getWebPtr(ioService& service)
 
 void WebSocketInfo::doWrite()
 {
-	if (m_state != WebSocketState::stop)
+	if (normalState())
 		m_socket.async_write_some(buffer(m_output, m_outputBytes), BIND2(onWrite, _1, _2));
 }
 
 void WebSocketInfo::doRead()
 {
-	if (m_state != WebSocketState::stop)
+	if (normalState())
 		m_socket.async_read_some(buffer(m_input), BIND2(onRead, _1, _2));
 }
 
@@ -74,6 +83,20 @@ void WebSocketInfo::stop()
 		m_state = WebSocketState::stop;
 		m_socket.close();
 	}
+}
+
+void WebSocketInfo::close()
+{
+	if (normalState())
+	{
+		m_state = WebSocketState::close;
+		WebSocket::getServer()->socketStop(shared_from_this());
+	}
+}
+
+bool WebSocketInfo::normalState()
+{
+	return m_state == shakehand || m_state == connected;
 }
 
 WebSocketState WebSocketInfo::getState()

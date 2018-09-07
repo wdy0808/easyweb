@@ -40,7 +40,7 @@ std::string WS::getReceiveData(std::string input)
 	std::string mask = input.substr(maskStart, 4); 
 	input = input.substr(maskStart + 4);
 	for (size_t i = 0; i < input.size(); ++i)
-		input[i] = input[i] ^ mask[i % 4];//std::cout << input.size() <<" " << input[input.size() - 1] << std::endl;
+		input[i] = input[i] ^ mask[i % 4];
 	return input;
 }
 

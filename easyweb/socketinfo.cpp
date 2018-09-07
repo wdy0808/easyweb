@@ -33,7 +33,7 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 			WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)), shared_from_this());
 			break;
 		case 0x08:
-			close();
+			stop();
 			break;
 		default:
 			stop();
@@ -82,14 +82,6 @@ void WebSocketInfo::stop()
 	{
 		m_state = WebSocketState::stop;
 		m_socket.close();
-	}
-}
-
-void WebSocketInfo::close()
-{
-	if (normalState())
-	{
-		m_state = WebSocketState::close;
 		WebSocket::getServer()->socketStop(shared_from_this());
 	}
 }

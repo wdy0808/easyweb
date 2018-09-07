@@ -15,15 +15,12 @@ WebSocket::~WebSocket()
 
 void WebSocket::connectSuccessful(WebSocketInfo::web_ptr socket)
 {
-	m_connectedSockets.push_back(socket);
-	for (auto i = m_stopSockets.begin(); i != m_stopSockets.end(); i++)
+	for (auto i = m_connectedSockets.begin(); i != m_connectedSockets.end(); i++)
 	{
 		if ((*i) == socket)
-		{
-			m_stopSockets.erase(i);
-			break;
-		}
+			return;
 	}
+	m_connectedSockets.push_back(socket);
 }
 
 void WebSocket::writeToAll(std::string msg, WebSocketInfo::web_ptr source)
@@ -44,7 +41,9 @@ WebSocketInfo::web_ptr WebSocket::getNewSocket(ioService& service)
 	if (m_stopSockets.empty())
 		return WebSocketInfo::getWebPtr(service);
 
-	return m_stopSockets.front();
+	WebSocketInfo::web_ptr ptr = m_stopSockets[0];
+	m_stopSockets.erase(m_stopSockets.begin());
+	return ptr;
 }
 
 void WebSocket::socketStop(WebSocketInfo::web_ptr socket)

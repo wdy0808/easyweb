@@ -19,19 +19,18 @@ void WebSocket::connectSuccessful(WebSocketInfo* socket)
 	m_connectedSockets.push_back(socket);
 }
 
-void WebSocket::writeToAll(std::string msg)
+void WebSocket::writeToAll(std::string msg, WebSocketInfo* source)
 {
-	auto i = m_connectedSockets.begin();
-	while (i != m_connectedSockets.end()) 
+	for (int i = 0; i < m_connectedSockets.size(); i++)
 	{
-		if ((*i)->getState() == connected)
+		if (m_connectedSockets[i] != source && m_connectedSockets[i]->getState() == connected)
 		{
-			(*i)->setOutputMsg(msg);
-			(*i)->doWrite();
+			m_connectedSockets[i]->setOutputMsg(msg);
+			m_connectedSockets[i]->doWrite();
 			++i;
 		}
-		else
-			i = m_connectedSockets.erase(i);
+		//else if (m_connectedSockets[i]->getState() == stop)
+			//i = m_connectedSockets.erase(i);
 	}
 }
 

@@ -5,10 +5,10 @@
 #include "WSHelper.h"
 #include <cstring>
 
-
 WebSocketInfo::WebSocketInfo(ioService& service)
 	: m_socket(service), m_state(shakehand)
 {
+	CoCreateGuid(&m_guid);
 }
 
 WebSocketInfo::~WebSocketInfo()
@@ -28,7 +28,7 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 		doWrite();
 	}
 	else if (m_state == connected)
-		WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)));
+		WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)), this);
 	doRead();
 }
 

@@ -4,7 +4,6 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
-#include <cstring>
 
 void WS::getResponseKey(const char* key, char* responseKey)
 {

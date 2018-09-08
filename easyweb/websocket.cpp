@@ -31,7 +31,6 @@ void WebSocket::writeToAll(std::string msg, WebSocketInfo::web_ptr source)
 		{
 			m_connectedSockets[i]->setOutputMsg(msg);
 			m_connectedSockets[i]->doWrite();
-			++i;
 		}
 	}
 }

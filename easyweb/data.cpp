@@ -2,7 +2,7 @@
 #include "data.h"
 #include "easyjson.h"
 
-Data* Data::m_data = nullptr;
+Data* Data::m_data = new Data();
 
 void CanvasData::record(std::string data)
 {
@@ -23,16 +23,6 @@ std::string CanvasData::generateJson()
 		jsonString +=  ",\"value\":" + std::to_string(i->second) + "}";
 	}
 	jsonString += "]}";
-	/*EasyJson jsonString;
-	jsonString.add("type", "init");
-	EasyJson jsonData;
-	for (auto i = m_canvasValue.begin(); i != m_canvasValue.end(); i++)
-	{
-		jsonData.add("pos", i->first);
-		jsonData.add("value", i->second);
-		jsonString.add("data", jsonData);
-	}
-	std::cout << jsonString.toString() << std::endl;*/
 	return jsonString;
 }
 
@@ -77,9 +67,6 @@ Data::~Data()
 
 Data* Data::getInstance()
 {
-	if (m_data == nullptr)
-		m_data = new Data();
-
 	return m_data;
 }
 

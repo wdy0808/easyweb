@@ -17,8 +17,6 @@
         }
     })
 
-    setInterval(doSend,900)
-
     var oc = $('#canvas')[0]
     canvas = oc.getContext('2d')
     var lastimgData=canvas.getImageData(0,0,600,400)
@@ -34,26 +32,29 @@
             canvas.stroke();
         });
     }).on('mouseup', function(){
+        doSend()
         $('#canvas').off('mousemove');
     });
     
     var ws = new WebSocket("ws://172.18.93.21:8888");
     ws.onopen = function(evt) {
-        connect.connectstate = '成功连接服务器'
+        connect.connectstate = '成功连接'
     };
     ws.onmessage = function(evt) {
+        console.log(evt.data);
         var newImage = JSON.parse(evt.data)
-        if (newImage["type"] == "changeData")
+        if (newImage["type"] == "changeData" || newImage["type"] == "init")
         {
             var newData = newImage.data
             var temImageData = canvas.getImageData(0,0,oc.width,oc.height)
             for (var i = 0; i < newData.length; i++)
             {
-                console.log(newData[i].pos);
                 lastimgData.data[newData[i].pos] = newData[i].value
                 temImageData.data[newData[i].pos] = newData[i].value
             }
             canvas.putImageData(temImageData,0,0);
+            if (newImage["type"] == "init")
+                connect.connectstate = '成功连接服务器'
         }
     };
     ws.onclose = function(evt) {

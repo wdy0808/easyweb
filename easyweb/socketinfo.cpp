@@ -3,10 +3,10 @@
 #include "websocket.h"
 #include <sstream>
 #include "WSHelper.h"
-#include <cstring>
+#include "data.h"
 
 WebSocketInfo::WebSocketInfo(ioService& service)
-	: m_socket(service), m_state(shakehand)
+	: m_socket(service), m_state(shakehand), m_data(Data::getInstance()->getCanvas(0))
 {
 }
 
@@ -28,9 +28,12 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 	else if (m_state == connected)
 	{
 		char opcode = m_input[0] & 0x0F;
+		std::string data;
 		switch (opcode) {
 		case 0x01:
-			WebSocket::getServer()->writeToAll(WS::getReceiveData(std::string(m_input, bytes)), shared_from_this());
+			data = WS::getReceiveData(std::string(m_input, bytes));
+			WebSocket::getServer()->writeToAll(data, shared_from_this());
+			m_data->record(data);
 			break;
 		case 0x08:
 			stop();
@@ -47,6 +50,13 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 	if (code)
 		stop();
 	if (m_state == shakehand)
+	{
+		m_state = init;
+		
+		setOutputMsg(m_data->generateJson());
+		doWrite();
+	}
+	else if (m_state == init)
 	{
 		WebSocket::getServer()->connectSuccessful(shared_from_this());
 		m_state = connected;
@@ -88,7 +98,7 @@ void WebSocketInfo::stop()
 
 bool WebSocketInfo::normalState()
 {
-	return m_state == shakehand || m_state == connected;
+	return m_state == shakehand || m_state == connected || m_state == init;
 }
 
 WebSocketState WebSocketInfo::getState()

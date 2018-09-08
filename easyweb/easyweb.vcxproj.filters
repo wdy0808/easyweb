@@ -19,6 +19,12 @@
     <Filter Include="源文件\websocket">
       <UniqueIdentifier>{423e4d89-2932-47ea-8b3a-5ae92d17f4b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\json">
+      <UniqueIdentifier>{8b38cb13-e018-4327-aef7-58c9c6e06c78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\json">
+      <UniqueIdentifier>{21b7336e-1313-404e-af77-1ed1c10ddd46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -39,6 +45,12 @@
     <ClInclude Include="socketinfo.h">
       <Filter>头文件\websocket</Filter>
     </ClInclude>
+    <ClInclude Include="easyjson.h">
+      <Filter>头文件\json</Filter>
+    </ClInclude>
+    <ClInclude Include="data.h">
+      <Filter>头文件\websocket</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +66,12 @@
       <Filter>源文件\websocket</Filter>
     </ClCompile>
     <ClCompile Include="socketinfo.cpp">
+      <Filter>源文件\websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="easyjson.cpp">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="data.cpp">
       <Filter>源文件\websocket</Filter>
     </ClCompile>
   </ItemGroup>

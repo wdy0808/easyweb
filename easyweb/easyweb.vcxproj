@@ -160,6 +160,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="asiodef.h" />
+    <ClInclude Include="data.h" />
+    <ClInclude Include="easyjson.h" />
     <ClInclude Include="socketinfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -167,6 +169,8 @@
     <ClInclude Include="WSHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="data.cpp" />
+    <ClCompile Include="easyjson.cpp" />
     <ClCompile Include="easyweb.cpp" />
     <ClCompile Include="socketinfo.cpp" />
     <ClCompile Include="stdafx.cpp">

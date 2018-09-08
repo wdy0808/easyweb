@@ -7,8 +7,9 @@
 #define BIND1(func, x) bind(&WebSocketInfo::func, shared_from_this(), x)
 #define BIND2(func, x, y) bind(&WebSocketInfo::func, shared_from_this(), x, y)
 
-enum WebSocketState{shakehand, connected, close, stop};
+enum WebSocketState{shakehand, connected, init, stop};
 class WebSocket;
+class CanvasData;
 class WebSocketInfo : public boost::enable_shared_from_this<WebSocketInfo>, boost::noncopyable
 {
 public:
@@ -46,5 +47,6 @@ private:
 	size_t m_inputBytes;
 	size_t m_outputBytes;
 	WebSocketState m_state;
+	CanvasData* m_data;
 };
 

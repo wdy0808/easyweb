@@ -3,6 +3,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
+#include <mutex>
 
 #define BIND1(func, x) bind(&WebSocketInfo::func, shared_from_this(), x)
 #define BIND2(func, x, y) bind(&WebSocketInfo::func, shared_from_this(), x, y)
@@ -48,5 +49,6 @@ private:
 	size_t m_outputBytes;
 	WebSocketState m_state;
 	CanvasData* m_data;
+	std::mutex m_mtx;
 };
 

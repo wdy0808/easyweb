@@ -88,6 +88,7 @@ Socket & WebSocketInfo::getSocket()
 
 void WebSocketInfo::stop()
 {
+	std::lock_guard<std::mutex> lock(m_mtx);
 	if (m_state != WebSocketState::stop)
 	{
 		m_state = WebSocketState::stop;

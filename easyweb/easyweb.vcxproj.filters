@@ -25,6 +25,18 @@
     <Filter Include="源文件\json">
       <UniqueIdentifier>{21b7336e-1313-404e-af77-1ed1c10ddd46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\http">
+      <UniqueIdentifier>{236b5a59-2590-402c-bf1b-bf55d546c391}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\http">
+      <UniqueIdentifier>{1bc24c82-ac72-449e-a7dd-9534ef1df09e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\util">
+      <UniqueIdentifier>{70f17104-e6bb-4cdf-a0ac-3e8d7cdfab71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\util">
+      <UniqueIdentifier>{1cfe86aa-f0fd-43cb-8ef4-114c273b95bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -33,13 +45,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="asiodef.h">
-      <Filter>头文件\websocket</Filter>
-    </ClInclude>
     <ClInclude Include="websocket.h">
-      <Filter>头文件\websocket</Filter>
-    </ClInclude>
-    <ClInclude Include="WSHelper.h">
       <Filter>头文件\websocket</Filter>
     </ClInclude>
     <ClInclude Include="socketinfo.h">
@@ -50,6 +56,21 @@
     </ClInclude>
     <ClInclude Include="data.h">
       <Filter>头文件\websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="httpsocket.h">
+      <Filter>头文件\http</Filter>
+    </ClInclude>
+    <ClInclude Include="asiodef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WSHelper.h">
+      <Filter>头文件\util</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpString.h">
+      <Filter>头文件\util</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpFile.h">
+      <Filter>头文件\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +83,6 @@
     <ClCompile Include="websocket.cpp">
       <Filter>源文件\websocket</Filter>
     </ClCompile>
-    <ClCompile Include="WSHelper.cpp">
-      <Filter>源文件\websocket</Filter>
-    </ClCompile>
     <ClCompile Include="socketinfo.cpp">
       <Filter>源文件\websocket</Filter>
     </ClCompile>
@@ -73,6 +91,18 @@
     </ClCompile>
     <ClCompile Include="data.cpp">
       <Filter>源文件\websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="httpsocket.cpp">
+      <Filter>源文件\http</Filter>
+    </ClCompile>
+    <ClCompile Include="WSHelper.cpp">
+      <Filter>源文件\util</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpString.cpp">
+      <Filter>源文件\util</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpFile.cpp">
+      <Filter>源文件\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

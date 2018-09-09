@@ -1,6 +1,5 @@
 #pragma once
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include "stdafx.h"
 #define MAX_SIZE 6554500
 
 typedef boost::asio::ip::tcp::socket Socket;

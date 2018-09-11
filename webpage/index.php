@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+session_start();
+$_SESSION['lasturl'] = '../../index.php';
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,6 +25,7 @@
     font-size: 30px;
     position: relative;
     top: 7px;
+    margin-right: 40px;
 }
 #login {
     float:right;
@@ -42,9 +46,9 @@
 }
 #catagory {
     position: absolute;
-    top: 100px;
-    right: 30px;
-    
+    top: 70px;
+    right: 180px;
+    display: none;
 }
 </style>
 </head>
@@ -52,6 +56,14 @@
     <div id="navigator">
         <div id="navigatorshow">
             <span id="name">EasyWeb</span>
+            <a href="<?php
+            if(isset($_SESSION['login'])) {
+                echo './paint/newpaint.php';
+            }
+            else {
+                echo './user/login/login.php';
+            }?>
+            ">新建画布</a>
             <div id="login">
                 <img src=<?php
                     if(isset($_SESSION['portait'])) {
@@ -79,8 +91,8 @@
             </div>
         </div>
         <div id="catagory">
-            <li id="loginout">退出</li>
-            <li id="persolweb">个人中心</li>
+            <a href="./user/login/loginout.php">退出</a>
+            <p id="persolweb">个人中心</p>
         </div>
     </div>
     <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
@@ -96,21 +108,19 @@
             if (navi.arrowresource == "./resource/arrowdown.png")
             {
                 navi.arrowresource = "./resource/arrowup.png"
-                document.getElementById("loginname").style.display = "block"
+                document.getElementById("catagory").style.display = "block"
             }
             else 
             {
                 navi.arrowresource = "./resource/arrowdown.png"
-                document.getElementById("loginname").style.display = "none"
+                document.getElementById("catagory").style.display = "none"
             }
         }
         document.getElementById("loginout").onclick = function () {
-            $_SESSION['lasturl'] = '../../index.php';
             header('Location: ./user/login/loginout.php');
         }
         <?php } 
         else {
-            $_SESSION['lasturl'] = '../../index.php';
         ?>
         document.getElementById("loginname").onclick = function () {
             window.location.href='./user/login/login.php'

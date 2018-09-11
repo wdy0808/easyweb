@@ -1,4 +1,15 @@
-﻿<!DOCTYPE html>
+﻿<?php
+$username = '';
+$canvasname = '';
+if (isset($_POST['canvasname']))
+{
+    session_start();
+    $con = mysqli_connect("localhost","root","0101,wdy.","easyweb");
+    $sql="INSERT INTO painting (username, name, authority) VALUES ('$_SESSION[username]','$_POST[canvasname]','$_POST[authority]')";
+    mysqli_query($con,$sql);
+}
+?>
+<!DOCTYPE html>
 <meta charset="utf-8" />
 <title>共同绘图</title>
 <head>
@@ -35,6 +46,9 @@
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
 <script>
+    var username = <?php echo $_SESSION['username']; ?>
+    var canvasname = <?php echo $_SESSION['canvasname']; ?>
+
     var connect = new Vue({
         el: '#container_div',
         data: {

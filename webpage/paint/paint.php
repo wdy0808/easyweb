@@ -80,6 +80,9 @@ if (isset($_POST['canvasname']))
     var ws = new WebSocket("ws://172.18.93.21:8888");
     ws.onopen = function(evt) {
         connect.connectstate = '初始化数据'
+
+        var initInfo = '{"username":' + <?php echo $username; ?> + ',"canvasname":' + <?php echo $canvasname; ?> + '}'
+        ws.send(initInfo)
     };
     ws.onmessage = function(evt) {
         console.log(evt.data);

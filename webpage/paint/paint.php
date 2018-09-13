@@ -1,8 +1,9 @@
 ﻿<?php
-$username = '';
+$username = $_SESSION['username'];
 $canvasname = '';
 if (isset($_POST['canvasname']))
 {
+    $canvasname = $_POST[canvasname];
     session_start();
     $con = mysqli_connect("localhost","root","0101,wdy.","easyweb");
     $sql="INSERT INTO painting (username, name, authority) VALUES ('$_SESSION[username]','$_POST[canvasname]','$_POST[authority]')";
@@ -87,10 +88,10 @@ if (isset($_POST['canvasname']))
         {
             var newData = newImage.data
             var temImageData = canvas.getImageData(0,0,oc.width,oc.height)
-            for (var i = 0; i < newData.length; i++)
+            for (var i = 0; i < newData.length; i+=2)
             {
-                lastimgData.data[newData[i].pos] = newData[i].value
-                temImageData.data[newData[i].pos] = newData[i].value
+                lastimgData.data[newData[i]] = newData[i + 1]
+                temImageData.data[newData[i]] = newData[i + 1]
             }
             canvas.putImageData(temImageData,0,0);
             if (newImage["type"] == "init")
@@ -121,7 +122,7 @@ if (isset($_POST['canvasname']))
                     JsonValue += ','
                 else 
                     first = true
-                JsonValue = JsonValue + '{"pos":' + i + ',"value":' + imageData.data[i] + '}'
+                JsonValue = JsonValue + i + ',' + imageData.data[i]
             }
             
         }

@@ -6,7 +6,7 @@
 #include "data.h"
 
 WebSocketInfo::WebSocketInfo(ioService& service)
-	: m_socket(service), m_state(shakehand), m_data(Data::getInstance()->getCanvas(0))
+	: m_socket(service), m_state(shakehand)
 {
 }
 
@@ -23,6 +23,13 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 	{
 		parseHeader();
 		buildResponse();
+		doWrite();
+	}
+	else if (m_state == init)
+	{
+		m_data = (Data::getInstance()->getCanvas(WS::getReceiveData(std::string(m_input, bytes))));
+
+		setOutputMsg(m_data->generateJson());
 		doWrite();
 	}
 	else if (m_state == connected)
@@ -50,12 +57,7 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 	if (code)
 		stop();
 	if (m_state == shakehand)
-	{
 		m_state = init;
-		
-		setOutputMsg(m_data->generateJson());
-		doWrite();
-	}
 	else if (m_state == init)
 	{
 		WebSocket::getServer()->connectSuccessful(shared_from_this());
@@ -93,6 +95,7 @@ void WebSocketInfo::stop()
 	{
 		m_state = WebSocketState::stop;
 		m_socket.close();
+		m_data->writeBack();
 		WebSocket::getServer()->socketStop(shared_from_this());
 	}
 }

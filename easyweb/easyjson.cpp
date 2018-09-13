@@ -133,6 +133,8 @@ std::string EasyJson::getString(std::string key)
 
 int EasyJson::getNumber(std::string key)
 {
+	if (key == "")
+		return atoi(toString().c_str());
 	if (m_jsonPairValue.find(key) == m_jsonPairValue.end() || m_jsonPairValue[key].getType() != number)
 		return -1;
 

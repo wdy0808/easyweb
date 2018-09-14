@@ -17,7 +17,7 @@ body {
 </style>
 </head>
 <body>
-    <form action="./paint.php" method="post">
+    <form action="./addpaint.php" method="post">
         <p>画布名字：<input type="text" name="canvasname"></p>
         <input type="radio" name="authority" value="public" checked="checked"/>public
         <input type="radio" name="authority" value="private" />private

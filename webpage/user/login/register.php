@@ -19,7 +19,6 @@ if (isset($_POST['username']))
         else 
         {
             $_SESSION['username'] = $_POST['username'];
-            $_SESSION['login'] = true;
             header('Location:'.$_SESSION['lasturl']);
         }
     }

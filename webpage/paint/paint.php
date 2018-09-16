@@ -94,7 +94,7 @@ $canvasname = $_GET['canvasname'];
         }
     };
     ws.onclose = function(evt) {
-        connect.connectstate = '连接断开'
+        connect.connectstate = '连接断开或画布拥有者退出'
         $("#container_div").css("display","block");
     };
 

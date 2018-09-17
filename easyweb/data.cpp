@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "data.h"
 #include "easyjson.h"
+#include <chrono>
 
 Data* Data::m_data = new Data();
 
@@ -9,8 +10,8 @@ CanvasData::CanvasData()
 
 }
 
-CanvasData::CanvasData(std::string u, std::string c, MYSQL* db, std::string init)
-	: m_user(u), m_canvas(c), m_db(db)
+CanvasData::CanvasData(std::string u, std::string c, MYSQL* db, std::string ctime, std::string mtime, std::string init)
+	: m_user(u), m_canvas(c), m_db(db), m_ctime(ctime), m_mtime(mtime)
 {
 	record(init);
 }
@@ -30,17 +31,23 @@ void CanvasData::record(std::string data)
 	}
 }
 
-std::string CanvasData::generateJson()
+std::string CanvasData::generateJson(bool index)
 {
+	if (index)
+		return "{\"username\":\"" + m_user + 
+				"\",\"canvasname\":\"" + m_canvas + 
+				"\",\"ctime\":\"" + m_ctime + 
+				"\",\"mtime\":\"" + m_mtime + "\"}";
+
 	clean();
-	std::string jsonString = "{\"type\":\"init\",\"data\":[";
+	std::string jsonString = "[";
 	for (auto i = m_canvasValue.begin(); i != m_canvasValue.end(); i++)
 	{
 		if (i != m_canvasValue.begin())
 			jsonString += ",";
 		jsonString += std::to_string(i->first) + "," + std::to_string(i->second);
 	}
-	jsonString += "]}";
+	jsonString += "]";
 	return jsonString;
 }
 
@@ -74,6 +81,19 @@ void CanvasData::clean()
 	}
 }
 
+std::string CanvasData::getNowTime()
+{
+	auto tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	struct tm* ptm = new struct tm;
+	localtime_s(ptm, &tt);
+	char date[20] = { 0 };
+	sprintf_s(date, 20, "%d-%02d-%02d %02d:%02d:%02d",
+		(int)ptm->tm_year + 1900, (int)ptm->tm_mon + 1, (int)ptm->tm_mday,
+		(int)ptm->tm_hour, (int)ptm->tm_min, (int)ptm->tm_sec);
+	delete ptm;
+	return std::string(date);
+}
+
 void CanvasData::writeBack()
 {
 	try {
@@ -84,7 +104,7 @@ void CanvasData::writeBack()
 				sql += ",";
 			sql += std::to_string(i->first) + "," + std::to_string(i->second);
 		}
-		sql += "]' where username = '" + m_user + "' and name = '" + m_canvas + "'";
+		sql += "]', mtime = '" + getNowTime() + "' where username = '" + m_user + "' and name = '" + m_canvas + "'";
 
 		if (mysql_query(m_db, sql.c_str()))
 		{
@@ -127,8 +147,6 @@ CanvasData* Data::getCanvas(std::string jsondata)
 {
 	EasyJson json(jsondata);
 	std::string username = json.getString("username"), canvasname = json.getString("canvasname");
-	if (m_canvas[username].find(canvasname) == m_canvas[username].end())
-		m_canvas[username][canvasname] = CanvasData(username, canvasname, m_db);
 
 	return &m_canvas[username][canvasname];
 }
@@ -154,6 +172,7 @@ bool Data::connectDB()
 	}
 	return true;
 }
+
 void Data::initData()
 {
 	try
@@ -171,23 +190,24 @@ void Data::initData()
 
 		MYSQL_RES* result = mysql_store_result(m_db);
 		MYSQL_FIELD *fields = mysql_fetch_fields(result);
-		int username = 0, name = 1, data = 2;
+		int username = 0, name = 1, data = 2, ctime = 3, mtime = 4;
 		for (int i = 0; i < mysql_num_fields(result); i++)
 		{
-			if (fields[i].name == "username")
+			std::string tem = fields[i].name;
+			if (tem == "username")
 				username = i;
-			else if (fields[i].name == "name")
+			else if (tem == "name")
 				name = i;
-			else if (fields[i].name == "data")
+			else if (tem == "data")
 				data = i;
+			else if (tem == "ctime")
+				ctime = i;
+			else if (tem == "mtime")
+				mtime = i;
 		}
 
 		while (MYSQL_ROW row = mysql_fetch_row(result))
-		{
-			if (row[data] == NULL)
-				continue;
-			m_canvas[row[username]][row[name]] = CanvasData(row[username], row[name], m_db, row[data]);
-		}
+			m_canvas[row[username]][row[name]] = CanvasData(row[username], row[name], m_db, row[ctime], row[mtime], row[data]);
 	}
 	catch (std::string &error_msg)
 	{

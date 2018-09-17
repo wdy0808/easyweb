@@ -7,17 +7,18 @@ class CanvasData
 {
 public:
 	CanvasData();
-	CanvasData(std::string u, std::string c, MYSQL* db, std::string init = "");
+	CanvasData(std::string u, std::string c, MYSQL* db, std::string ctime, std::string mtime, std::string init = "");
 
 	void record(std::string data);
-	std::string generateJson();
+	std::string generateJson(bool index);
 	void writeBack();
 
 private:
 	void clean();
+	std::string getNowTime();
 
 	std::map<int, int> m_canvasValue;
-	std::string m_user, m_canvas;
+	std::string m_user, m_canvas, m_ctime, m_mtime;
 	MYSQL* m_db;
 };
 

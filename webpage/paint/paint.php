@@ -1,4 +1,5 @@
 ﻿<?php
+session_start();
 $username = $_GET['username'];
 $canvasname = $_GET['canvasname'];
 ?>
@@ -70,7 +71,9 @@ $canvasname = $_GET['canvasname'];
     ws.onopen = function(evt) {
         connect.connectstate = '初始化数据'
 
-        var initInfo = '{"username":' + '"<?php echo $username; ?>"' + ',"canvasname":' + '"<?php echo $canvasname; ?>"' + '}'
+        var initInfo = '{"username":' + '"<?php echo $username; ?>"' +
+         ',"canvasname":' + '"<?php echo $canvasname; ?>"' +
+         ',"selfname":' + '"<?php echo $_SESSION['username']; ?>"' + '}'
         ws.send(initInfo)
     };
     ws.onmessage = function(evt) {
@@ -92,9 +95,19 @@ $canvasname = $_GET['canvasname'];
                 $("#container_div").css("display","none");
             }
         }
+        else if (newImage["type"] == "ownerquit")
+        {
+            connect.connectstate = '画布拥有者退出'
+            $("#container_div").css("display","block");
+        }
+        else if (newImage["type"] == "ownerback")
+        {
+            connect.connectstate = '成功连接服务器'
+            $("#container_div").css("display","none");
+        }
     };
     ws.onclose = function(evt) {
-        connect.connectstate = '连接断开或画布拥有者退出'
+        connect.connectstate = '连接断开'
         $("#container_div").css("display","block");
     };
 

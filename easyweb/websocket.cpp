@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "websocket.h"
+#include "data.h"
 
 WebSocket* WebSocket::m_server = nullptr;
+std::map<std::string, std::map<std::string, std::list<WebSocketInfo::web_ptr> > > WebSocket::m_connectedSockets = std::map<std::string, std::map<std::string, std::list<WebSocketInfo::web_ptr> > >();
 
 WebSocket::WebSocket()
 {
@@ -15,22 +17,18 @@ WebSocket::~WebSocket()
 
 void WebSocket::connectSuccessful(WebSocketInfo::web_ptr socket)
 {
-	for (auto i = m_connectedSockets.begin(); i != m_connectedSockets.end(); i++)
-	{
-		if ((*i) == socket)
-			return;
-	}
-	m_connectedSockets.push_back(socket);
+	WebSocket::m_connectedSockets[socket->getUsername()][socket->getCanvasname()].push_back(socket);
 }
 
 void WebSocket::writeToAll(std::string msg, WebSocketInfo::web_ptr source)
 {
-	for (int i = 0; i < m_connectedSockets.size(); i++)
+	std::list<WebSocketInfo::web_ptr>& tem = WebSocket::m_connectedSockets[source->getUsername()][source->getCanvasname()];
+	for (auto i = tem.begin(); i != tem.end(); ++i)
 	{
-		if (m_connectedSockets[i] != source && m_connectedSockets[i]->getState() == connected)
+		if ((*i) != source)
 		{
-			m_connectedSockets[i]->setOutputMsg(msg);
-			m_connectedSockets[i]->doWrite();
+			(*i)->setOutputMsg(msg);
+			(*i)->doWrite();
 		}
 	}
 }
@@ -48,6 +46,13 @@ WebSocketInfo::web_ptr WebSocket::getNewSocket(ioService& service)
 void WebSocket::socketStop(WebSocketInfo::web_ptr socket)
 {
 	m_stopSockets.push_back(socket);
+	WebSocket::m_connectedSockets[socket->getUsername()][socket->getCanvasname()].remove(socket);
+}
+
+void WebSocket::ownerQuit(WebSocketInfo::web_ptr owner)
+{
+	std::string pause = "{\"type\":\"ownerquit\"}";
+	writeToAll(pause, owner);
 }
 
 WebSocket* WebSocket::getServer()
@@ -56,4 +61,26 @@ WebSocket* WebSocket::getServer()
 		m_server = new WebSocket();
 
 	return m_server;
+}
+
+std::string WebSocket::generateJson(std::string username)
+{
+	std::string ans = "[";
+
+	for (auto i = WebSocket::m_connectedSockets.begin(); i != WebSocket::m_connectedSockets.end(); ++i)
+	{
+		if (i->first == username)
+			continue;
+		for (auto j = i->second.begin(); j != i->second.end(); ++j)
+		{
+			if (j->second.empty())
+				continue;
+			if (ans != "[")
+				ans += ",";
+
+			ans += (*(j->second.begin()))->getData()->generateJson(true);
+		}
+	}
+	ans += "]";
+	return ans;
 }

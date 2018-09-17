@@ -27,9 +27,16 @@ void WebSocketInfo::onRead(const ErrorCode& code, size_t bytes)
 	}
 	else if (m_state == init)
 	{
-		m_data = (Data::getInstance()->getCanvas(WS::getReceiveData(std::string(m_input, bytes))));
-
-		setOutputMsg(m_data->generateJson());
+		std::string inputData = WS::getReceiveData(std::string(m_input, bytes));
+		m_data = Data::getInstance()->getCanvas(inputData);
+		WS::config(inputData, m_info);
+		if (m_info.index)
+		{
+			m_state = indexconfig;
+			setOutputMsg(m_web->generateJson(getUsername()));
+		}
+		else 
+			setOutputMsg(WS::generateInitData(m_data->generateJson(false)));
 		doWrite();
 	}
 	else if (m_state == connected)
@@ -63,6 +70,8 @@ void WebSocketInfo::onWrite(const ErrorCode& code, size_t bytes)
 		WebSocket::getServer()->connectSuccessful(shared_from_this());
 		m_state = connected;
 	}
+	else if (m_state == indexconfig)
+		stop();
 }
 
 WebSocketInfo::web_ptr WebSocketInfo::getWebPtr(ioService& service)
@@ -95,14 +104,20 @@ void WebSocketInfo::stop()
 	{
 		m_state = WebSocketState::stop;
 		m_socket.close();
-		m_data->writeBack();
-		WebSocket::getServer()->socketStop(shared_from_this());
+		if (m_info.ifOwner())
+		{
+			m_data->writeBack();
+			WebSocket::getServer()->socketStop(shared_from_this());
+			m_web->ownerQuit(shared_from_this());
+		}
+		else if (m_state != indexconfig)
+			WebSocket::getServer()->socketStop(shared_from_this());
 	}
 }
 
 bool WebSocketInfo::normalState()
 {
-	return m_state == shakehand || m_state == connected || m_state == init;
+	return m_state != WebSocketState::stop;
 }
 
 WebSocketState WebSocketInfo::getState()
@@ -153,4 +168,18 @@ void WebSocketInfo::parseHeader()
 	char tem[100];
 	WS::getResponseKey(m_header["Sec-WebSocket-Key"].c_str(), tem);
 	m_header["Sec-WebSocket-Accept"] = tem;
+}
+
+std::string WebSocketInfo::getUsername()
+{
+	return m_info.username;
+}
+std::string WebSocketInfo::getCanvasname()
+{
+	return m_info.canvasname;
+}
+
+CanvasData* WebSocketInfo::getData()
+{
+	return m_data;
 }

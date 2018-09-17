@@ -4,6 +4,7 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
+#include "easyjson.h"
 
 void WS::getResponseKey(const char* key, char* responseKey)
 {
@@ -68,4 +69,23 @@ std::string WS::generateSendData(std::string data)
 			output[i + 2] = len[7 - i];
 	}
 	return output + data;
+}
+
+void WS::config(std::string inputData, CanvasInfo& data)
+{
+	EasyJson json(inputData);
+	data.username = json.getString("username");
+	data.canvasname = json.getString("canvasname");
+	if (data.canvasname.empty())
+	{
+		data.index = true;
+		return;
+	}
+	data.index = false;
+	data.selfname = json.getString("selfname");
+}
+
+std::string WS::generateInitData(std::string data)
+{
+	return "{\"type\":\"init\",\"data\":" + data + "}";
 }

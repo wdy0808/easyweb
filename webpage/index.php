@@ -158,9 +158,9 @@ a.hide:visited {color:black;}
                                 <td>{{post.canvasname}}</td>
                                 <td>{{post.ctime}}</td>
                                 <td>{{post.mtime}}</td>
-                                <td><a href="./paint/paint.php?username={{post.username}}&canvasname={{post.canvasname}}">进入</a></td>
+                                <td><a :href=getUrl(post.username,post.canvasname)>进入</a></td>
                             </tr>
-                        `        
+                        `  
         })
         var m = new Vue({
             el: '#main',
@@ -169,19 +169,23 @@ a.hide:visited {color:black;}
                 connectstate: ''
             }
         })
-
-        var ws = new WebSocket("ws://172.18.93.21:9999");
+        function getUrl(user, canvas) {
+            return "./paint/paint.php?username=" + user + "&canvasname=" + canvas
+        }
+        <?php if (isset($_SESSION['username'])) {?>
+        var ws = new WebSocket("ws://172.18.93.21:8888");
         ws.onopen = function(evt) {
             var initInfo = '{"username":' + '"<?php echo $_SESSION['username']; ?>"}'
             ws.send(initInfo)
         };
         ws.onmessage = function(evt) {
             console.log(evt.data);
-            m.paintingInfo = JSON.parse(evt.data).data
+            m.paintingInfo = JSON.parse(evt.data)
         };
         ws.onclose = function(evt) {
             m.connectstate = '连接断开'
         };
+    <?php } ?>
     </script>
 </body>
 </html>

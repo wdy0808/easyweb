@@ -8,7 +8,17 @@
 #define BIND1(func, x) bind(&WebSocketInfo::func, shared_from_this(), x)
 #define BIND2(func, x, y) bind(&WebSocketInfo::func, shared_from_this(), x, y)
 
-enum WebSocketState{shakehand, connected, init, stop};
+enum WebSocketState{shakehand, connected, init, indexconfig, stop};
+
+struct CanvasInfo {
+	std::string username, canvasname, selfname;
+	bool index;
+	bool ifOwner()
+	{
+		return username == selfname;
+	}
+};
+
 class WebSocket;
 class CanvasData;
 class WebSocketInfo : public boost::enable_shared_from_this<WebSocketInfo>, boost::noncopyable
@@ -26,6 +36,12 @@ public:
 	Socket& getSocket();
 	WebSocketState getState();
 	void setOutputMsg(std::string msg);
+	void stop();
+
+	std::string getUsername();
+	std::string getCanvasname();
+
+	CanvasData* getData();
 
 private:
 	WebSocketInfo(ioService& service, WebSocket* web);
@@ -35,8 +51,6 @@ private:
 
 	void buildResponse();
 	void parseHeader();
-
-	void stop();
 
 	bool normalState();
 
@@ -50,5 +64,6 @@ private:
 	WebSocketState m_state;
 	CanvasData* m_data;
 	std::mutex m_mtx;
+	CanvasInfo m_info;
 };
 
